@@ -21,6 +21,7 @@ const openArrowDoubleLine = require("../../../public/svg/open-arrow-double-line.
 const heatSymbol = require("../../../public/svg/triangle.svg");
 const addSymbol = require("../../../public/svg/plus.svg");
 const benzeneRing = require("../../../public/svg/benzene-ring.svg");
+const flexChain = require("../../../public/svg/flex-chain.svg");
 const flexRing = require("../../../public/svg/n-ring.svg");
 const cycloPropane = require("../../../public/svg/cyclo-propane.svg");
 const cycloButane = require("../../../public/svg/cyclo-butane.svg");
@@ -237,7 +238,7 @@ Kekule.Localization.addResource('en', 'ChemWidgetTexts', {
 	CAPTION_IMAGE_BLOCK: 'Image block',
 	CAPTION_TEXT_IMAGE: 'Text & image',
 
-	CAPTION_MOL_FLEXCHAIN: 'Flex chain',
+	CAPTION_MOL_FLEXCHAIN: flexChain,
 	CAPTION_MOL_FLEXRING: flexRing,
 
 	CAPTION_REPOSITORY_RING: 'Rings',
