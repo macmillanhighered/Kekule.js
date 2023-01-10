@@ -241,7 +241,7 @@ Kekule.Localization.addResource('en', 'ChemWidgetTexts', {
 	CAPTION_MOL_FLEXCHAIN: flexChain,
 	CAPTION_MOL_FLEXRING: flexRing,
 
-	CAPTION_REPOSITORY_RING: 'Rings',
+	CAPTION_REPOSITORY_RING: 'Templates',
 	CAPTION_REPOSITORY_RING_3: cycloPropane,
 	CAPTION_REPOSITORY_RING_4: cycloButane,
 	CAPTION_REPOSITORY_RING_5: cycloPentane,
