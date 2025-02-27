@@ -1418,7 +1418,7 @@ Kekule.Editor.Composer = Class.create(Kekule.ChemWidget.AbstractWidget,
 			{
 				this.getEditor().setPropValue(editorPropName, value);
 				if (editorPropName === "chemObj")
-					this.createChemToolbar();
+					this.updateChemToolbar();
 			}
 		}
 		//console.log('define delegate prop', propOptions);
