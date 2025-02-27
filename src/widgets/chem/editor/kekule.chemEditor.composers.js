@@ -2390,7 +2390,7 @@ Kekule.Editor.Composer = Class.create(Kekule.ChemWidget.AbstractWidget,
 		var btns = Kekule.ArrayUtils.intersect(this.getCommonToolButtons(), this.getZoomButtonNames());
 		if (btns.length)
 		{
-			var parentElem = this.getBottomRegionElem();
+			var parentElem = this.getTopRegionElem();
 			var toolbar = this.createInnerToolbar(parentElem);
 			toolbar.addClassName(CCNS.COMPOSER_ZOOM_TOOLBAR);
 			var actions = this.getZoomActions();
