@@ -1417,8 +1417,8 @@ Kekule.Editor.Composer = Class.create(Kekule.ChemWidget.AbstractWidget,
 			propOptions.setter = function(value)
 			{
 				this.getEditor().setPropValue(editorPropName, value);
-				if (editorPropName === "chemObj")
-					this.updateChemToolbar();
+				// if (editorPropName === "chemObj")
+				// 	this.createChemToolbar();
 			}
 		}
 		//console.log('define delegate prop', propOptions);
@@ -2441,9 +2441,6 @@ Kekule.Editor.Composer = Class.create(Kekule.ChemWidget.AbstractWidget,
 	 */
 	createChemToolbar: function()
 	{
-		console.log('Creating chem toolbar');
-		console.log('Left region elem:', this.getLeftRegionElem());
-		console.log('Existing chem btn group:', this.getChemBtnGroup());
 		var parentElem = this.getLeftRegionElem();
 		var toolbar = this.createInnerToolbar(parentElem);
 		toolbar.addClassName(CCNS.COMPOSER_CHEM_TOOLBAR);
