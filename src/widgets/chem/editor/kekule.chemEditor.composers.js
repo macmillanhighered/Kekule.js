@@ -2390,7 +2390,7 @@ Kekule.Editor.Composer = Class.create(Kekule.ChemWidget.AbstractWidget,
 		var btns = Kekule.ArrayUtils.intersect(this.getCommonToolButtons(), this.getZoomButtonNames());
 		if (btns.length)
 		{
-			var parentElem = this.getTopRegionElem();
+			var parentElem = this.getBottomRegionElem();
 			var toolbar = this.createInnerToolbar(parentElem);
 			toolbar.addClassName(CCNS.COMPOSER_ZOOM_TOOLBAR);
 			var actions = this.getZoomActions();
@@ -2441,6 +2441,9 @@ Kekule.Editor.Composer = Class.create(Kekule.ChemWidget.AbstractWidget,
 	 */
 	createChemToolbar: function()
 	{
+		console.log('Creating chem toolbar');
+		console.log('Left region elem:', this.getLeftRegionElem());
+		console.log('Existing chem btn group:', this.getChemBtnGroup());
 		var parentElem = this.getLeftRegionElem();
 		var toolbar = this.createInnerToolbar(parentElem);
 		toolbar.addClassName(CCNS.COMPOSER_CHEM_TOOLBAR);
