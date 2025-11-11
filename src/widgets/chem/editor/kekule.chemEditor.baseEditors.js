@@ -6284,6 +6284,43 @@ Kekule.Editor.BasicManipulationIaController = Class.create(Kekule.Editor.BaseEdi
 		this.getEditor().pulseSelectionAreaMarker();  // pulse selection, reach the user's attention
 	},
 
+
+	/** @private */
+	_startStickyDragTimer: function(startCoord)
+	{
+		this._stickyDragStartCoord = startCoord;
+		this._stickyDragTimer = setTimeout(this._checkStickyDragConversion.bind(this),
+			this.getEditorConfigs().getInteractionConfigs().getStickyDragActivatingTimeThreshold());
+	},
+
+	/** @private */
+	_checkStickyDragConversion: function()
+	{
+		if (this.getState() === Kekule.Editor.BasicManipulationIaController.State.MANIPULATING && this._stickyDragStartCoord)
+		{
+			var currentCoord = this._lastMouseMoveCoord || this.getStartCoord();
+			var distance = Kekule.CoordUtils.getDistance(this._stickyDragStartCoord, currentCoord);
+			var threshold = this.getEditorConfigs().getInteractionConfigs().getUnmovePointerDistanceThreshold() || 5;
+			if (distance <= threshold)
+			{
+				this._stickyDragFirstRelease = true;
+			}
+		}
+		this._stickyDragTimer = null;
+		this._stickyDragStartCoord = null;
+	},
+
+	/** @private */
+	_clearStickyDragTimer: function()
+	{
+		if (this._stickyDragTimer)
+		{
+			clearTimeout(this._stickyDragTimer);
+			this._stickyDragTimer = null;
+			this._stickyDragStartCoord = null;
+		}
+	},
+
 	/**
 	 * Begin a manipulation.
 	 * Descendants may override this method.
@@ -6314,7 +6351,14 @@ Kekule.Editor.BasicManipulationIaController = Class.create(Kekule.Editor.BaseEdi
 			hoveredObj = hoveredObj.getNearestMovableObject();
 			if (this.getEnableMove())
 			{
+				// Always start normal manipulation immediately
 				this.startDirectManipulate(null, hoveredObj, currCoord);
+				
+				// If sticky drag mode is enabled, start timer to check for conversion
+				if (this.getEditorConfigs().getInteractionConfigs().getEnableStickyDragMode())
+				{
+					this._startStickyDragTimer(currCoord);
+				}
 				return;
 			}
 		}
@@ -6634,6 +6678,12 @@ Kekule.Editor.BasicManipulationIaController = Class.create(Kekule.Editor.BaseEdi
 			{
 				if (this.getState() === S.MANIPULATING) // when click right button on manipulating, just cancel it.
 				{
+					// Check if we're in sticky drag mode
+					if (this._stickyDragFirstRelease !== undefined)
+					{
+						// Cancel sticky drag mode
+						this._stickyDragFirstRelease = undefined;
+					}
 					this.cancelManipulate();
 					this.setState(S.NORMAL);
 					e.stopPropagation();
@@ -6673,30 +6723,52 @@ Kekule.Editor.BasicManipulationIaController = Class.create(Kekule.Editor.BaseEdi
 			}
 			else if (state === S.MANIPULATING)
 			{
-				//var dis = Kekule.CoordUtils.getDistance(startCoord, endCoord);
-				//if (dis <= this.getEditorConfigs().getInteractionConfigs().getUnmovePointerDistanceThreshold())
-				if (Kekule.CoordUtils.isEqual(startCoord, endCoord))  // mouse down and up in same point, not manupulate, just select a object
+				// Check if this is sticky drag mode
+				if (this._stickyDragFirstRelease)
 				{
-					if (this.getEnableSelect())
-						this.getEditor().selectOnCoord(startCoord, shifted || this.getEditor().getIsToggleSelectOn());
+					// First mouse release in sticky drag, stay in manipulation mode
+					this._stickyDragFirstRelease = false;
+					e.preventDefault();
 				}
-				else  // move objects to new pos
+				else if (this._stickyDragFirstRelease === false)  // explicitly false means we're in sticky mode
 				{
+					// Second click in sticky drag, exit sticky mode
 					this.manipulateBeforeStopping();
-					/*
-					if (this.getEnableMove())
+					this.addOperationToEditor();
+					this.stopManipulate();
+					this.setState(S.NORMAL);
+					this._stickyDragFirstRelease = undefined;
+					e.preventDefault();
+				}
+				else
+				{
+					// Normal manipulation (not sticky drag), clear timer
+					this._clearStickyDragTimer();
+					//var dis = Kekule.CoordUtils.getDistance(startCoord, endCoord);
+					//if (dis <= this.getEditorConfigs().getInteractionConfigs().getUnmovePointerDistanceThreshold())
+					if (Kekule.CoordUtils.isEqual(startCoord, endCoord))  // mouse down and up in same point, not manupulate, just select a object
 					{
-						//this.moveManipulatedObjs(coord);
-						//this.endMoving();
-						// add operation to editor's historys
+						if (this.getEnableSelect())
+							this.getEditor().selectOnCoord(startCoord, shifted || this.getEditor().getIsToggleSelectOn());
+					}
+					else  // move objects to new pos
+					{
+						this.manipulateBeforeStopping();
+						/*
+						if (this.getEnableMove())
+						{
+							//this.moveManipulatedObjs(coord);
+							//this.endMoving();
+							// add operation to editor's historys
+							this.addOperationToEditor();
+						}
+						*/
 						this.addOperationToEditor();
 					}
-					*/
-					this.addOperationToEditor();
+					this.stopManipulate();
+					this.setState(S.NORMAL);
+					e.preventDefault();
 				}
-				this.stopManipulate();
-				this.setState(S.NORMAL);
-				e.preventDefault();
 			}
 		}
 		return true;

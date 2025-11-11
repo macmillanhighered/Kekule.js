@@ -123,6 +123,8 @@ Kekule.ClassUtils.makeSingleton(Kekule.Editor.ChemSpaceEditorConfigs);
  * //@property {Int} selectingBrushMinWidth Min width of selecting brush.
  * @property {Int} trackSimplifierDistanceThreshold Distance threshold to simplify curves in track structure input.
  * @property {Float} trackTouchRefLength In touch track input, the editor may be zoomed in to ensure the default bond screen level is this value (in inch).
+ * @property {Bool} enableStickyDragMode If true, clicking and holding on an object will enter sticky drag mode for accessibility.
+ * @property {Int} stickyDragActivatingTimeThreshold Holding pointer down on an object longer than this time (in ms) will enter sticky drag mode.
  */
 Kekule.Editor.InteractionConfigs = Class.create(Kekule.AbstractConfigs,
 /** @lends Kekule.Editor.InteractionConfigs# */
@@ -155,6 +157,8 @@ Kekule.Editor.InteractionConfigs = Class.create(Kekule.AbstractConfigs,
 		this.addFloatConfigProp('selectingBrushWidth', 12);
 		this.addBoolConfigProp('enableOffSelectionManipulation', true);
 		this.addIntConfigProp('offSelectionManipulationActivatingTimeThreshold', 800);
+		this.addBoolConfigProp('enableStickyDragMode', true);
+		this.addIntConfigProp('stickyDragActivatingTimeThreshold', 2000);
 		this.addFloatConfigProp('unmovePointerDistanceThreshold', 5, {'scope': PS.PUBLIC}); // hidden to object inspector
 		//this.addFloatConfigProp('selectingBrushMinWidth', 5);
 		this.addIntConfigProp('selectingCurveSimplificationDistanceThreshold', 2, {'scope': PS.PUBLIC}); // hidden to object inspector
