@@ -6061,6 +6061,15 @@ Kekule.Editor.BasicManipulationIaController = Class.create(Kekule.Editor.BaseEdi
 		this.setIsManipulatingSelection(false);
 		//console.log('call prepareManipulating', startCoord, manipulateType, objOrObjs);
 		this.prepareManipulating(manipulateType || Kekule.Editor.BasicManipulationIaController.ManipulationType.MOVE, objs, startCoord, startBox, rotateCenter, rotateRefCoord);
+
+		// Explicitly update cursor when manipulate starts
+		this.getEditor().setCursor(['grabbing', '-webkit-grabbing', '-moz-grabbing', 'move']);
+
+		// Start sticky drag timer if enabled
+		if (this.getEditorConfigs().getInteractionConfigs().getEnableStickyDragMode())
+		{
+			this._startStickyDragTimer(startCoord);
+		}
 	},
 	/**
 	 * Called when a manipulation is applied and the changes has been reflected in editor (editor redrawn done).
@@ -6085,6 +6094,7 @@ Kekule.Editor.BasicManipulationIaController = Class.create(Kekule.Editor.BaseEdi
 		}
 		var editor = this.getEditor();
 		editor.endManipulateObject();
+		editor.setCursor(''); // Explicitly update cursor to default
 	},
 	/**
 	 * Called before method stopManipulate.
@@ -6158,7 +6168,15 @@ Kekule.Editor.BasicManipulationIaController = Class.create(Kekule.Editor.BaseEdi
 		var result = '';
 		// since client element is not the same to widget element, coord need to be recalculated
 		var c = this._getEventMouseCoord(e, this.getEditor().getEditClientElem());
-		if (this.getState() === Kekule.Editor.BasicManipulationIaController.State.NORMAL)
+		var S = Kekule.Editor.BasicManipulationIaController.State;
+		
+		// Show drag cursor when manipulating
+		if (this.getState() === S.MANIPULATING)
+		{
+			return ['grabbing', '-webkit-grabbing', '-moz-grabbing', 'move'];
+		}
+		
+		if (this.getState() === S.NORMAL)
 		{
 			var R = Kekule.Editor.BoxRegion;
 			var region = this.getEditor().getCoordRegionInSelectionMarker(c);
@@ -6353,12 +6371,6 @@ Kekule.Editor.BasicManipulationIaController = Class.create(Kekule.Editor.BaseEdi
 			{
 				// Always start normal manipulation immediately
 				this.startDirectManipulate(null, hoveredObj, currCoord);
-				
-				// If sticky drag mode is enabled, start timer to check for conversion
-				if (this.getEditorConfigs().getInteractionConfigs().getEnableStickyDragMode())
-				{
-					this._startStickyDragTimer(currCoord);
-				}
 				return;
 			}
 		}
@@ -6414,6 +6426,10 @@ Kekule.Editor.BasicManipulationIaController = Class.create(Kekule.Editor.BaseEdi
 				this.setState(S.MANIPULATING);
 				this.setIsManipulatingSelection(true);
 				this.prepareManipulating(T.MOVE, this.getEditor().getSelection(), currCoord);
+				if (this.getEditorConfigs().getInteractionConfigs().getEnableStickyDragMode())
+				{
+					this._startStickyDragTimer(currCoord);
+				}
 			}
 		}
 		else if (isRotate)
@@ -6422,6 +6438,10 @@ Kekule.Editor.BasicManipulationIaController = Class.create(Kekule.Editor.BaseEdi
 			this.setIsManipulatingSelection(true);
 			this.setRotateStartingRegion(rotateRegion);
 			this.prepareManipulating(T.ROTATE, this.getEditor().getSelection(), currCoord, this.getEditor().getSelectionContainerBox());
+			if (this.getEditorConfigs().getInteractionConfigs().getEnableStickyDragMode())
+			{
+				this._startStickyDragTimer(currCoord);
+			}
 		}
 		else
 		{
@@ -6678,12 +6698,7 @@ Kekule.Editor.BasicManipulationIaController = Class.create(Kekule.Editor.BaseEdi
 			{
 				if (this.getState() === S.MANIPULATING) // when click right button on manipulating, just cancel it.
 				{
-					// Check if we're in sticky drag mode
-					if (this._stickyDragFirstRelease !== undefined)
-					{
-						// Cancel sticky drag mode
-						this._stickyDragFirstRelease = undefined;
-					}
+					this._stickyDragFirstRelease = undefined;
 					this.cancelManipulate();
 					this.setState(S.NORMAL);
 					e.stopPropagation();
@@ -6748,8 +6763,9 @@ Kekule.Editor.BasicManipulationIaController = Class.create(Kekule.Editor.BaseEdi
 					//if (dis <= this.getEditorConfigs().getInteractionConfigs().getUnmovePointerDistanceThreshold())
 					if (Kekule.CoordUtils.isEqual(startCoord, endCoord))  // mouse down and up in same point, not manupulate, just select a object
 					{
-						if (this.getEnableSelect())
+						if (this.getEnableSelect()) {
 							this.getEditor().selectOnCoord(startCoord, shifted || this.getEditor().getIsToggleSelectOn());
+						}
 					}
 					else  // move objects to new pos
 					{
