@@ -5532,6 +5532,10 @@ Kekule.Editor.BasicManipulationIaController = Class.create(Kekule.Editor.BaseEdi
 		this.doPrepareManipulatingObjects(manipulatingObjs, startScreenCoord);
 		this.doPrepareManipulatingStartingCoords(startScreenCoord, startBox, rotateCenter, rotateRefCoord);
 		this.createManipulateOperation();
+		if (this.getEditorConfigs().getInteractionConfigs().getEnableStickyDragMode())
+		{
+			this._startStickyDragTimer(startScreenCoord);
+		}
 
 		this._runManipulationStepId = window.requestAnimationFrame(this.execManipulationStepBind);
 		//this.setManuallyHotTrack(true);  // manully set hot track point when manipulating
@@ -6061,15 +6065,6 @@ Kekule.Editor.BasicManipulationIaController = Class.create(Kekule.Editor.BaseEdi
 		this.setIsManipulatingSelection(false);
 		//console.log('call prepareManipulating', startCoord, manipulateType, objOrObjs);
 		this.prepareManipulating(manipulateType || Kekule.Editor.BasicManipulationIaController.ManipulationType.MOVE, objs, startCoord, startBox, rotateCenter, rotateRefCoord);
-
-		// Explicitly update cursor when manipulate starts
-		this.getEditor().setCursor(['grabbing', '-webkit-grabbing', '-moz-grabbing', 'move']);
-
-		// Start sticky drag timer if enabled
-		if (this.getEditorConfigs().getInteractionConfigs().getEnableStickyDragMode())
-		{
-			this._startStickyDragTimer(startCoord);
-		}
 	},
 	/**
 	 * Called when a manipulation is applied and the changes has been reflected in editor (editor redrawn done).
@@ -6322,6 +6317,7 @@ Kekule.Editor.BasicManipulationIaController = Class.create(Kekule.Editor.BaseEdi
 			if (distance <= threshold)
 			{
 				this._stickyDragFirstRelease = true;
+				this.getEditor().setCursor(['grabbing', '-webkit-grabbing', '-moz-grabbing', 'move']);
 			}
 		}
 		this._stickyDragTimer = null;
@@ -6426,10 +6422,6 @@ Kekule.Editor.BasicManipulationIaController = Class.create(Kekule.Editor.BaseEdi
 				this.setState(S.MANIPULATING);
 				this.setIsManipulatingSelection(true);
 				this.prepareManipulating(T.MOVE, this.getEditor().getSelection(), currCoord);
-				if (this.getEditorConfigs().getInteractionConfigs().getEnableStickyDragMode())
-				{
-					this._startStickyDragTimer(currCoord);
-				}
 			}
 		}
 		else if (isRotate)
@@ -6438,10 +6430,6 @@ Kekule.Editor.BasicManipulationIaController = Class.create(Kekule.Editor.BaseEdi
 			this.setIsManipulatingSelection(true);
 			this.setRotateStartingRegion(rotateRegion);
 			this.prepareManipulating(T.ROTATE, this.getEditor().getSelection(), currCoord, this.getEditor().getSelectionContainerBox());
-			if (this.getEditorConfigs().getInteractionConfigs().getEnableStickyDragMode())
-			{
-				this._startStickyDragTimer(currCoord);
-			}
 		}
 		else
 		{

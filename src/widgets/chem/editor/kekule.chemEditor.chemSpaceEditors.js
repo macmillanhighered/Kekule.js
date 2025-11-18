@@ -4777,7 +4777,7 @@ Kekule.Editor.RepositoryIaController = Class.create(Kekule.Editor.StructureInser
 				this.getEditor().invokeEvent('objectInserted', { objects: insertedRepositoryObjects });
 				this.setInsertedRepositoryObjects(null);
 			}
-			if (Kekule.CoordUtils.isEqual(startCoord, endCoord))  // click
+			if (Kekule.CoordUtils.isEqual(startCoord, endCoord) && Kekule.ObjUtils.isUnset(this._stickyDragFirstRelease))
 			{
 				this.addOperationToEditor();
 				this.stopManipulate();
