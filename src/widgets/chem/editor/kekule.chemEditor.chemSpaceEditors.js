@@ -4447,13 +4447,6 @@ Kekule.Editor.RepositoryIaController = Class.create(Kekule.Editor.StructureInser
 		this.defineProp('insertedRepositoryObjects', {'dataType': 'Kekule.ChemObject', 'serializable': false});
 	},
 
-	/** @ignore */
-	doTestMouseCursor: function(coord, e)
-	{
-		// Overwrite parent BasicMolManipulationIaController,
-		// Always show pointer cursor
-		return '';
-	},
 	/** @private */
 	canInteractWithObj: function($super, obj)
 	{
@@ -4777,7 +4770,7 @@ Kekule.Editor.RepositoryIaController = Class.create(Kekule.Editor.StructureInser
 				this.getEditor().invokeEvent('objectInserted', { objects: insertedRepositoryObjects });
 				this.setInsertedRepositoryObjects(null);
 			}
-			if (Kekule.CoordUtils.isEqual(startCoord, endCoord))  // click
+			if (Kekule.CoordUtils.isEqual(startCoord, endCoord) && Kekule.ObjUtils.isUnset(this._stickyDragFirstRelease))
 			{
 				this.addOperationToEditor();
 				this.stopManipulate();
